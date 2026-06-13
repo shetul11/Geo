@@ -1,0 +1,124 @@
+import pygame
+import sys
+import random
+import math
+
+pygame.init()
+
+# ------------------------
+# Window Settings
+# ------------------------
+WIDTH = 1000
+HEIGHT = 600
+FPS = 60
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Geometry Dash Inspired Game")
+
+clock = pygame.time.Clock()
+
+# ------------------------
+# Colors
+# ------------------------
+BLUE = (80, 180, 255)
+PURPLE = (130, 100, 255)
+PINK = (255, 100, 200)
+
+GREEN = (0, 255, 0)
+DARK_GREEN = (0, 180, 0)
+
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+
+GROUND_COLOR = (50, 50, 50)
+WHITE = (255, 255, 255)
+
+background_colors = [BLUE, PURPLE, PINK]
+background_index = 0
+color_timer = 0
+
+# ------------------------
+# Ground
+# ------------------------
+GROUND_Y = 500
+
+# ------------------------
+# Player Settings
+# ------------------------
+player_size = 40
+player_x = 150
+
+gravity = 0.8
+jump_strength = -14
+ship_acceleration = -0.6
+
+velocity_y = 0
+player_y = GROUND_Y - player_size
+
+on_ground = True
+
+# cube or ship
+game_mode = "cube"
+
+# ------------------------
+# Speed
+# ------------------------
+scroll_speed = 6
+
+# ------------------------
+# Visual Effects
+# ------------------------
+trail = []
+particles = []
+
+rotation = 0
+
+# ------------------------
+# Obstacles and Portals
+# ------------------------
+obstacles = []
+portals = []
+
+# ------------------------
+# Reset Function
+# ------------------------
+def reset_game():
+    global player_y
+    global velocity_y
+    global on_ground
+    global obstacles
+    global portals
+    global game_mode
+    global rotation
+
+    player_y = GROUND_Y - player_size
+    velocity_y = 0
+    on_ground = True
+
+    rotation = 0
+    game_mode = "cube"
+
+    trail.clear()
+    particles.clear()
+
+    obstacles = [
+
+        # Cube section
+        pygame.Rect(800, GROUND_Y - 40, 40, 40),
+        pygame.Rect(1000, GROUND_Y - 40, 40, 40),
+        pygame.Rect(1200, GROUND_Y - 80, 40, 80),
+        pygame.Rect(1450, GROUND_Y - 40, 40, 40),
+
+        # Ship section
+        pygame.Rect(1800, 250, 40, 200),
+        pygame.Rect(2100, 100, 40, 150),
+        pygame.Rect(2400, 300, 40, 150),
+        pygame.Rect(2700, 180, 40, 200),
+    ]
+
+    portals = [
+        pygame.Rect(1500, GROUND_Y - 100, 40, 100)
+    ]
+
+# Initialize level
+reset_game()
