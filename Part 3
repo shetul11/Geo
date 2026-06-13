@@ -1,0 +1,156 @@
+import pygame
+import sys
+
+pygame.init()
+
+# Window
+WIDTH = 1000
+HEIGHT = 600
+FPS = 60
+
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Geometry Dash Inspired Game")
+clock = pygame.time.Clock()
+
+# Colors
+SKY_BLUE = (80, 180, 255)
+GROUND_COLOR = (50, 50, 50)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+
+GROUND_Y = 500
+
+# Player
+player_size = 40
+player_x = 150
+
+# Physics
+gravity = 0.8
+jump_strength = -14
+ship_acceleration = -0.6
+
+scroll_speed = 6
+
+
+def reset_game():
+    global player_y, velocity_y, on_ground
+    global obstacles, portals, game_mode
+
+    player_y = GROUND_Y - player_size
+    velocity_y = 0
+    on_ground = True
+    game_mode = "cube"
+
+    obstacles = [
+        pygame.Rect(800, GROUND_Y - 40, 40, 40),
+        pygame.Rect(1000, GROUND_Y - 40, 40, 40),
+        pygame.Rect(1200, GROUND_Y - 80, 40, 80),
+        pygame.Rect(1800, 250, 40, 200),  # ship section obstacle
+        pygame.Rect(2100, 100, 40, 150),
+        pygame.Rect(2400, 300, 40, 150)
+    ]
+
+    # Portal that changes to ship mode
+    portals = [
+        pygame.Rect(1500, GROUND_Y - 100, 40, 100)
+    ]
+
+
+reset_game()
+
+running = True
+
+while running:
+    clock.tick(FPS)
+
+    # Events
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if game_mode == "cube":
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and on_ground:
+                    velocity_y = jump_strength
+                    on_ground = False
+
+    keys = pygame.key.get_pressed()
+
+    # Cube mode physics
+    if game_mode == "cube":
+        velocity_y += gravity
+        player_y += velocity_y
+
+        if player_y >= GROUND_Y - player_size:
+            player_y = GROUND_Y - player_size
+            velocity_y = 0
+            on_ground = True
+
+    # Ship mode physics
+    else:
+        if keys[pygame.K_SPACE]:
+            velocity_y += ship_acceleration
+
+        velocity_y += 0.4
+        player_y += velocity_y
+
+        # Stay inside screen
+        if player_y < 0:
+            player_y = 0
+            velocity_y = 0
+
+        if player_y > HEIGHT - player_size:
+            player_y = HEIGHT - player_size
+            velocity_y = 0
+
+    player_rect = pygame.Rect(
+        player_x,
+        int(player_y),
+        player_size,
+        player_size
+    )
+
+    # Move objects
+    for obstacle in obstacles:
+        obstacle.x -= scroll_speed
+
+    for portal in portals:
+        portal.x -= scroll_speed
+
+    # Portal collision
+    for portal in portals:
+        if player_rect.colliderect(portal):
+            game_mode = "ship"
+
+    # Obstacle collision
+    for obstacle in obstacles:
+        if player_rect.colliderect(obstacle):
+            reset_game()
+
+    # Draw
+    screen.fill(SKY_BLUE)
+
+    # Ground only in cube mode
+    if game_mode == "cube":
+        pygame.draw.rect(
+            screen,
+            GROUND_COLOR,
+            (0, GROUND_Y, WIDTH, HEIGHT - GROUND_Y)
+        )
+
+    # Player
+    pygame.draw.rect(screen, GREEN, player_rect)
+
+    # Obstacles
+    for obstacle in obstacles:
+        pygame.draw.rect(screen, RED, obstacle)
+
+    # Portals
+    for portal in portals:
+        pygame.draw.rect(screen, YELLOW, portal)
+
+    pygame.display.flip()
+
+pygame.quit()
+sys.exit()
